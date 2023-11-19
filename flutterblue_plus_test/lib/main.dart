@@ -1,3 +1,4 @@
+// importing packages
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:adobe_xd/pinned.dart';
@@ -22,6 +23,7 @@ class BleScanner extends StatefulWidget {
   _BleScannerState createState() => _BleScannerState();
 }
 
+// setting up for Bluetooth connection
 class _BleScannerState extends State<BleScanner> {
   // FlutterBluePlus flutterBlue = FlutterBluePlus();
   List<BluetoothDevice> devices = [];
@@ -33,6 +35,7 @@ class _BleScannerState extends State<BleScanner> {
     startScanning();
   }
 
+  // connecting the EXG pill to the app using Bluetooth
   void startScanning() async {
     await FlutterBluePlus.startScan();
     FlutterBluePlus.scanResults.listen((results) {
@@ -60,6 +63,7 @@ class _BleScannerState extends State<BleScanner> {
       backgroundColor: const Color(0xff87bcbf),
       body: Stack(
         children: <Widget>[
+          // the logo
           Pinned.fromPins(
             Pin(start: 20.0, end: 20.0),
             Pin(size: 300.0, middle: 0.3642),
@@ -123,6 +127,7 @@ class _BleScannerState extends State<BleScanner> {
             },
           ),
           Pinned.fromPins(
+            // connecting to the Bluetooth
               Pin(start: 100.5, end: 100.0), Pin(size: 50.2, end: 190.0),
               child: ElevatedButton(
                   child: const Text("CONNECT",
@@ -150,6 +155,7 @@ class _BleScannerState extends State<BleScanner> {
                         color: Color(0xff87bcbf),
                       )),
                   onPressed: () {
+                    // ensuring the connection is working between bluetooth and the app
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -177,6 +183,7 @@ const String _svg_qzg2bp =
 const String _svg_be7s69 =
     '<svg viewBox="155.9 765.8 256.1 126.2" ><path transform="translate(166.9, 749.05)" d="M 245.0997924804688 27.78126525878906 C 245.0997924804688 27.78126525878906 176.8738708496094 -10.36935424804688 148.8007659912109 55.13455200195312 C 120.727653503418 120.6384582519531 83.29685974121094 84.64730834960938 52.34445190429688 91.84553527832031 C 21.39204406738281 99.04376220703125 -11 142.9529724121094 -11 142.9529724121094 L 245.0997924804688 142.9529724121094 L 245.0997924804688 27.78126525878906 Z" fill="#ffffff" stroke="none" stroke-width="1" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
 
+// reading the data collected from the EXG pill and formatting the data once its been sent through Bluetooth to the app.
 void readCharacteristic(BluetoothDevice device, Guid characteristicId) async {
   List<BluetoothService> services = await device.discoverServices();
   for (BluetoothService service in services) {
