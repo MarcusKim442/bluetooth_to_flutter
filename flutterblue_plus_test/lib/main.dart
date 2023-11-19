@@ -25,6 +25,7 @@ class BleScanner extends StatefulWidget {
 class _BleScannerState extends State<BleScanner> {
   // FlutterBluePlus flutterBlue = FlutterBluePlus();
   List<BluetoothDevice> devices = [];
+  String connectionSubtitle = "Not Connected";
 
   @override
   void initState() {
@@ -49,19 +50,8 @@ class _BleScannerState extends State<BleScanner> {
 
   Future<void> connectToDevice(BluetoothDevice device) async {
     await device.connect();
+    connectionSubtitle = "Connected";
     // Once connected, you can perform operations on the device.
-  }
-
-  void readCharacteristic(BluetoothDevice device, Guid characteristicId) async {
-    List<BluetoothService> services = await device.discoverServices();
-    for (BluetoothService service in services) {
-      for (BluetoothCharacteristic characteristic in service.characteristics) {
-        if (characteristic.uuid == characteristicId) {
-          List<int> value = await characteristic.read();
-          print('Read value: $value');
-        }
-      }
-    }
   }
 
   @override
@@ -128,35 +118,42 @@ class _BleScannerState extends State<BleScanner> {
               return ListTile(
                 title: Text(devices[index].platformName),
                 subtitle: Text(devices[index].remoteId.toString()),
+                trailing: Text(connectionSubtitle),
               );
             },
           ),
           Pinned.fromPins(
               Pin(start: 100.5, end: 100.0), Pin(size: 50.2, end: 190.0),
               child: ElevatedButton(
-                  child: const Text("CONNECT"),
+                  child: const Text("CONNECT",
+                      style: TextStyle(
+                        color: Color(0xff87bcbf),
+                      )),
                   onPressed: () {
                     connectToDevice(devices[0]);
                   })),
+          // Pinned.fromPins(
+          //     Pin(start: 100.5, end: 100.0), Pin(size: 50.2, end: 100.0),
+          //     child: ElevatedButton(
+          //         child: const Text("GET STUFF"),
+          //         onPressed: () {
+          //           readCharacteristic(
+          //               devices[0],
+          //               Guid.fromString(
+          //                   "beb5483e-36e1-4688-b7f5-ea07361b26a8"));
+          //         })),
           Pinned.fromPins(
-              Pin(start: 100.5, end: 100.0), Pin(size: 50.2, end: 100.0),
+              Pin(start: 100.5, end: 100.0), Pin(size: 50.2, end: 110.0),
               child: ElevatedButton(
-                  child: const Text("GET STUFF"),
-                  onPressed: () {
-                    readCharacteristic(
-                        devices[0],
-                        Guid.fromString(
-                            "beb5483e-36e1-4688-b7f5-ea07361b26a8"));
-                  })),
-          Pinned.fromPins(
-              Pin(start: 100.5, end: 100.0), Pin(size: 50.2, end: 20.0),
-              child: ElevatedButton(
-                  child: const Text("Next page"),
+                  child: const Text("START",
+                      style: TextStyle(
+                        color: Color(0xff87bcbf),
+                      )),
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const GoodRoute()),
+                          builder: (context) => GoodRoute(devices[0])),
                     );
                   })),
         ],
@@ -179,3 +176,22 @@ const String _svg_qzg2bp =
     '<svg viewBox="0.0 0.0 256.1 126.2" ><path transform="translate(11.0, -16.74)" d="M -11 131.9075927734375 C -11 131.9075927734375 57.22591400146484 170.0582122802734 85.29902648925781 104.5543060302734 C 113.3721389770508 39.05039978027344 150.8029327392578 75.04154968261719 181.7553405761719 67.84332275390625 C 212.7077484130859 60.64509201049805 245.0997924804688 16.73588562011719 245.0997924804688 16.73588562011719 L -11 16.73588562011719 L -11 131.9075927734375 Z" fill="#ffffff" stroke="none" stroke-width="1" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
 const String _svg_be7s69 =
     '<svg viewBox="155.9 765.8 256.1 126.2" ><path transform="translate(166.9, 749.05)" d="M 245.0997924804688 27.78126525878906 C 245.0997924804688 27.78126525878906 176.8738708496094 -10.36935424804688 148.8007659912109 55.13455200195312 C 120.727653503418 120.6384582519531 83.29685974121094 84.64730834960938 52.34445190429688 91.84553527832031 C 21.39204406738281 99.04376220703125 -11 142.9529724121094 -11 142.9529724121094 L 245.0997924804688 142.9529724121094 L 245.0997924804688 27.78126525878906 Z" fill="#ffffff" stroke="none" stroke-width="1" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
+
+void readCharacteristic(BluetoothDevice device, Guid characteristicId) async {
+  List<BluetoothService> services = await device.discoverServices();
+  for (BluetoothService service in services) {
+    for (BluetoothCharacteristic characteristic in service.characteristics) {
+      if (characteristic.uuid == characteristicId) {
+        List<int> value = await characteristic.read();
+        String valueInString = String.fromCharCodes(value);
+        print(valueInString);
+        List<String> stringParts = valueInString.split(',');
+        stringParts.removeLast();
+        List<double> floatList =
+            stringParts.map((s) => double.parse(s)).toList();
+        print(floatList);
+        print(floatList.length);
+      }
+    }
+  }
+}
