@@ -1,3 +1,4 @@
+// importing libraries and packages
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
@@ -28,6 +29,7 @@ class GoodRouteState extends State<GoodRoute> {
   List<double> datapoints = [];
   int currentDatapoint = 0;
 
+  // variables for the state change
   Color currentColor = const Color(0xff9fcaad);
   String currentText = "GOOD";
   String currentTextChange = "Test Database Input";
@@ -39,6 +41,7 @@ class GoodRouteState extends State<GoodRoute> {
     // loadModel();
     // datapoints = List<int>.generate(10000, (index) => Random().nextInt(100));
 
+    // for the data to be visualized on the app
     seriesList = _createRandomData();
     timer = Timer.periodic(Duration(milliseconds: 200), (Timer t) {
       setState(() {
@@ -46,7 +49,8 @@ class GoodRouteState extends State<GoodRoute> {
       });
     });
   }
-
+  
+// changes the colour of the app when conditions are met (between warning and normal)
   void changeColor() {
     setState(() {
       if (currentColor == const Color(0xff9fcaad)) {
@@ -59,6 +63,7 @@ class GoodRouteState extends State<GoodRoute> {
     });
   }
 
+  // used for the graph as the x variable
   @override
   void dispose() {
     timer?.cancel();
@@ -66,10 +71,12 @@ class GoodRouteState extends State<GoodRoute> {
   }
 
   // This is just a sample, replace this with your real data.
+  // for the visualization of the heartbeat data in the actual app
   List<charts.Series<DataPoint, int>> _createRandomData() {
     readCharacteristicChart(
         widget.device, Guid.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8"));
 
+    // entering the data points into the data graph
     List<double> data_new;
     if (datapoints.length >= 100) {
       data_new = datapoints.sublist(
@@ -83,6 +90,7 @@ class GoodRouteState extends State<GoodRoute> {
       return DataPoint(entry.key, entry.value);
     }).toList();
 
+    // formatting the graph
     charts.Color white = const charts.Color(r: 255, g: 255, b: 255, a: 255);
     return [
       charts.Series<DataPoint, int>(
@@ -96,6 +104,7 @@ class GoodRouteState extends State<GoodRoute> {
     ];
   }
 
+  // temporary data, test data taken from CSV file on ECG arrhthymia data
   Future<void> loadModel() async {
     final interpreter =
         await tfl.Interpreter.fromAsset('assets/model_balance_10.tflite');
@@ -140,6 +149,7 @@ class GoodRouteState extends State<GoodRoute> {
     }
   }
 
+  // making the data readable for the bluetooth device
   void readCharacteristicChart(
       BluetoothDevice device, Guid characteristicId) async {
     List<BluetoothService> services = await device.discoverServices();
@@ -165,6 +175,7 @@ class GoodRouteState extends State<GoodRoute> {
     datapoints.add(val);
   }
 
+  // actual structure for the app.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -188,6 +199,7 @@ class GoodRouteState extends State<GoodRoute> {
                 ),
               ),
               Align(
+                // status text
                 alignment: Alignment(0.0, -0.671),
                 child: SizedBox(
                   width: 250.0,
@@ -198,7 +210,7 @@ class GoodRouteState extends State<GoodRoute> {
                       fontFamily: 'Europa',
                       fontSize: 40,
                       color: const Color(
-                          0xffffffff), // COLOUR WILL NEED TO BE CHANGED
+                          0xffffffff),
                       letterSpacing: 2,
                       fontWeight: FontWeight.w700,
                       height: 1.75,
@@ -223,17 +235,18 @@ class GoodRouteState extends State<GoodRoute> {
                 ),
               ),
               Align(
+              // for showing what active status is on (!! or GOOD)
                 alignment: Alignment(0.0, -0.529),
                 child: SizedBox(
                   width: 250.0,
                   height: 88.0,
                   child: Text(
-                    currentText, // THIS PART CHANGE TO BAD!!!!
+                    currentText,
                     style: TextStyle(
                       fontFamily: 'Europa',
                       fontSize: 70,
                       color: const Color(
-                          0xffffffff), // COLOUR WILL NEED TO BE CHANGED TOO
+                          0xffffffff), 
                       letterSpacing: 3,
                       fontWeight: FontWeight.w700,
                       height: 1.7571428571428571,
@@ -252,6 +265,7 @@ class GoodRouteState extends State<GoodRoute> {
                   ),
                 ),
               ),
+              // text spot to enter primary phone number
               Pinned.fromPins(
                 Pin(start: 70.5, end: 70.0),
                 Pin(size: 80.2, end: 170.0),
@@ -269,6 +283,7 @@ class GoodRouteState extends State<GoodRoute> {
                 ),
               ),
               Pinned.fromPins(
+                //  calling 911
                 Pin(startFraction: 0.15, endFraction: 0.15),
                 Pin(size: 40.2, end: 60.0),
                 child: ElevatedButton(
@@ -287,6 +302,7 @@ class GoodRouteState extends State<GoodRoute> {
                   },
                 ),
               ),
+              // calling the number entered into the blank (primary contact number)
               Pinned.fromPins(
                 Pin(startFraction: 0.15, endFraction: 0.15),
                 Pin(size: 40.2, end: 130.0),
@@ -302,6 +318,7 @@ class GoodRouteState extends State<GoodRoute> {
                   },
                 ),
               ),
+              // debugging case to change from one state to other (!!! <-> GOOD + colour change)
               Pinned.fromPins(
                 Pin(start: 60.5, end: 50.0),
                 Pin(size: 20.2, end: 5.0),
@@ -312,6 +329,8 @@ class GoodRouteState extends State<GoodRoute> {
                   },
                 ),
               ),
+
+              // creating the line (ECG visualization)
               Pinned.fromPins(
                   Pin(start: 20.5, end: 20.0), Pin(size: 150.2, end: 255.0),
                   child: charts.LineChart(seriesList, animate: false))
@@ -321,6 +340,7 @@ class GoodRouteState extends State<GoodRoute> {
   }
 }
 
+// creates data points to be plotted on the graph
 class DataPoint {
   final int time;
   final double value;
