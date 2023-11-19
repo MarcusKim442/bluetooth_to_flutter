@@ -30,12 +30,13 @@ class GoodRouteState extends State<GoodRoute> {
 
   Color currentColor = const Color(0xff9fcaad);
   String currentText = "GOOD";
+  String currentTextChange = "Test Database Input";
 
   @override
   void initState() {
     super.initState();
     _numberCtrl.text = "";
-    loadModel();
+    // loadModel();
     // datapoints = List<int>.generate(10000, (index) => Random().nextInt(100));
 
     seriesList = _createRandomData();
@@ -96,26 +97,31 @@ class GoodRouteState extends State<GoodRoute> {
   }
 
   Future<void> loadModel() async {
-    final interpreter = await tfl.Interpreter.fromAsset('assets/model.tflite');
+    final interpreter =
+        await tfl.Interpreter.fromAsset('assets/model_balance_10.tflite');
     var input = [
-      0.358431004,
-      0.289353311,
-      -0.024218344,
-      -0.684444689,
-      -0.024218344,
+      98,
+      218,
+      0.260487361,
+      0.271969804,
+      -0.101701695,
+      -0.798689053,
+      -0.101701695,
       4,
       4,
       15,
       7,
-      0.059910037,
-      0.204313865,
-      0.506367518,
-      0.157496101,
-      0.014414963,
-      21,
-      10,
-      35,
-      4
+      98,
+      218,
+      0.051481441,
+      0.200012086,
+      0.608085177,
+      0.150409439,
+      0.004200646,
+      20,
+      6,
+      29,
+      3
     ];
 
     var output = List<double>.filled(1, 0).reshape([1, 1]);
@@ -124,7 +130,14 @@ class GoodRouteState extends State<GoodRoute> {
     interpreter.run(input, output);
 
     // print outputs
-    print(output);
+    var conf = output[0][0];
+    String out = "Model Output: " + conf.toString().substring(0, 5);
+    setState(() {
+      currentTextChange = out;
+    });
+    if (conf > 0.5) {
+      changeColor();
+    }
   }
 
   void readCharacteristicChart(
@@ -259,15 +272,18 @@ class GoodRouteState extends State<GoodRoute> {
                 Pin(startFraction: 0.15, endFraction: 0.15),
                 Pin(size: 40.2, end: 60.0),
                 child: ElevatedButton(
-                  child: Text("CALL MEDICAL SERVICES (911)",
+                  child: Text("CALL MEDICAL SERVICES",
                       style: TextStyle(
                           height: 1,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           // color: Color(0xff9fcaad))),
                           color: currentColor)),
+                  // onPressed: () async {
+                  //   loadModel();
+                  // },
                   onPressed: () async {
-                    loadModel();
+                    FlutterPhoneDirectCaller.callNumber("7802670726");
                   },
                 ),
               ),
@@ -290,9 +306,9 @@ class GoodRouteState extends State<GoodRoute> {
                 Pin(start: 60.5, end: 50.0),
                 Pin(size: 20.2, end: 5.0),
                 child: ElevatedButton(
-                  child: const Text("CHANGE"),
+                  child: Text(currentTextChange),
                   onPressed: () async {
-                    changeColor();
+                    loadModel();
                   },
                 ),
               ),
